@@ -1,16 +1,6 @@
-from common import *
-
-class VAE(nn.Module):
-    def __init__(self):
-        super().__init__()
-        
-        self.FC1 = nn.Linear()
-
-import torch
-from models import BaseVAE
-from torch import nn
-from torch.nn import functional as F
-from .types_ import *
+from common import torch, nn, F, Tensor
+from base import BaseVAE
+#from .types_ import *
 
 
 class VanillaVAE(BaseVAE):
@@ -19,7 +9,7 @@ class VanillaVAE(BaseVAE):
     def __init__(self,
                  in_channels: int,
                  latent_dim: int,
-                 hidden_dims: List = None,
+                 hidden_dims: list = None,
                  **kwargs) -> None:
         super(VanillaVAE, self).__init__()
 
@@ -82,7 +72,7 @@ class VanillaVAE(BaseVAE):
                                       kernel_size= 3, padding= 1),
                             nn.Tanh())
 
-    def encode(self, input: Tensor) -> List[Tensor]:
+    def encode(self, input: Tensor) -> list[Tensor]:
         """
         Encodes the input by passing through the encoder network
         and returns the latent codes.
@@ -124,7 +114,7 @@ class VanillaVAE(BaseVAE):
         eps = torch.randn_like(std)
         return eps * std + mu
 
-    def forward(self, input: Tensor, **kwargs) -> List[Tensor]:
+    def forward(self, input: Tensor, **kwargs) -> list[Tensor]:
         mu, log_var = self.encode(input)
         z = self.reparameterize(mu, log_var)
         return  [self.decode(z), input, mu, log_var]
@@ -179,45 +169,3 @@ class VanillaVAE(BaseVAE):
         """
 
         return self.forward(x)[0]
-
-""" 
-vae = VAE(x_dim=784, hidden_dim1= 512, hidden_dim2=256, z_dim=20)
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-vae.to(device)
-optimizer = optim.Adam(vae.parameters(), lr=3e-4)
-def loss_fn(recon_x, x, mu, var): # We use a single sample to reconstruct the loss
-    reconstruction_loss = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
-    regul_loss = -0.5 * torch.sum(1 + var - mu.pow(2) - var.exp())
-    return reconstruction_loss + regul_loss
-def model_run(epochs):
-    for epoch in tqdm.tqdm(range(epochs)):
-        #Training 
-        vae.train()
-        train_loss = 0
-        for batch_idx, (data, _) in enumerate(train_loader):
-            data = data.to(device)
-            optimizer.zero_grad()
-            recon_batch, mu, var = vae(data)
-            loss = loss_fn(recon_batch, data, mu, var)
-            
-            loss.backward()
-            train_loss += loss.item()
-            optimizer.step()
-        if epoch % 10 == 0 :
-            print('Train loss : {:.4f}'.format(train_loss / len(train_loader.dataset)))
-        #Testing
-        vae.eval()
-        test_loss= 0
-        with torch.no_grad():
-            for data, _ in test_loader:
-                data = data.to(device)
-                recon, mu, var = vae(data)
-                
-                # sum up batch loss
-                test_loss += loss_fn(recon, data, mu, var).item()
-            
-        if epoch % 10 == 0 :
-            print('Test loss: {:.4f}'.format(test_loss / len(test_loader.dataset)))
-        if epoch in (0, 9, 79):
-            save_sample(epoch)
-             """
