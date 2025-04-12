@@ -8,11 +8,11 @@ model_params:
   Capacity_max_iter: 10000
 
 data_params:
-  data_path: "Data/"
+  data_path: "/Users/tomw/Documents/MVA/Internship/Cambridge/Code/EM_Data/original"
   train_batch_size: 64
-  val_batch_size:  64
+  val_batch_size:  32
   patch_size: 64
-  num_workers: 4
+  num_workers: 0
   
 exp_params:
   LR: 0.005
@@ -22,7 +22,7 @@ exp_params:
   manual_seed: 1265
 
 trainer_params:
-  gpus: [1]
+  gpus: []
   max_epochs: 10
 
 logging_params:

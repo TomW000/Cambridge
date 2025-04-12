@@ -11,7 +11,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.seed import seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from dataset import VAEDataset
-from pytorch_lightning.plugins import DDPPlugin
+from pytorch_lightning.strategies import DDPStrategy
 
 
 parser = argparse.ArgumentParser(description='Generic runner for VAE models')
@@ -39,9 +39,15 @@ model = vae_models[config['model_params']['name']](**config['model_params'])
 experiment = VAEXperiment(model,
                           config['exp_params'])
 
-data = VAEDataset(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
 
-data.setup()
+datamodule = VAEDataset(
+    data_path=config["data_params"]["data_path"],
+    batch_size=config["data_params"]["train_batch_size"],
+    num_workers=config["data_params"]["num_workers"]
+)
+
+
+
 runner = Trainer(logger=tb_logger,
                  callbacks=[
                      LearningRateMonitor(),
@@ -50,7 +56,7 @@ runner = Trainer(logger=tb_logger,
                                      monitor= "val_loss",
                                      save_last= True),
                  ],
-                 strategy=DDPPlugin(find_unused_parameters=False),
+                 strategy=DDPStrategy(find_unused_parameters=False),
                  **config['trainer_params'])
 
 
@@ -59,4 +65,4 @@ Path(f"{tb_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
 
 
 print(f"======= Training {config['model_params']['name']} =======")
-runner.fit(experiment, datamodule=data)
+runner.fit(experiment, datamodule=datamodule) 
