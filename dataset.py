@@ -26,12 +26,12 @@ class MyDataset(Dataset):
         self.split = split
         self.data = []
         
-        self.transform = transform = T.Compose([T.Resize(224),                      # 1. Resize first
-                                                T.CenterCrop(224),                  # 2. Then crop
-                                                T.ToTensor(),                       # 3. Convert to tensor (0-255 → 0-1)
-                                                T.Lambda(lambda x: x.expand(3, -1, -1) if x.shape[0]==1 else x),  # 4. Handle grayscale
-                                                T.Normalize([0.5]*3, [0.5]*3),  # 5. Normalize
-                                                T.ConvertImageDtype(torch.float32)   # 6. Ensure float32 (redundant in this case)
+        self.transform = T.Compose([T.Resize((64,64)),                     
+                                                #T.CenterCrop(),
+                                                T.ToTensor(),   
+                                                T.Lambda(lambda x: x.expand(3, -1, -1) if x.shape[0]==1 else x),
+                                                T.Normalize([0.5]*3, [0.5]*3), 
+                                                T.ConvertImageDtype(torch.float32) 
                                                 ])
         
         target_dir = self.dir / self.split
@@ -55,7 +55,7 @@ class MyDataset(Dataset):
     
 
 class VAEDataset(LightningDataModule):
-    def __init__(self, data_path: str, batch_size: int, num_workers: int = 0):
+    def __init__(self, data_path: str, batch_size: int, num_workers: int = 8):
         super().__init__()
         self.data_path = data_path
         self.batch_size = batch_size
@@ -67,7 +67,7 @@ class VAEDataset(LightningDataModule):
             data_path=self.data_path,
             split='train'
         )
-        self.val_dataset = MyDataset(
+        self.test_dataset = MyDataset(
             data_path=self.data_path,
             split='test',
         )
@@ -80,12 +80,12 @@ class VAEDataset(LightningDataModule):
             shuffle=True
         )
     
-    def val_dataloader(self):
+    def test_dataloader(self):
         return DataLoader(
-            self.val_dataset,
+            self.test_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            shuffle=False
+            shuffle=True
         )
         
      
