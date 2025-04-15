@@ -1,0 +1,33 @@
+model_params:
+  name: 'BetaVAE'
+  in_channels: 3
+  latent_dim: 128
+  hideen_dims: []
+  loss_type: 'B'
+  beta: 
+  gamma: 1.0
+  max_capacity: 25
+  Capacity_max_iter: 10000
+
+data_params:
+  data_path: "/Users/tomw/Documents/MVA/Internship/Cambridge/Code/EM_Data/original"
+  train_batch_size: 64
+  test_batch_size: 32
+  patch_size: 64
+  num_workers: 0
+  
+exp_params:
+  LR: 0.0005
+  weight_decay: 0.0
+  scheduler_gamma: 0.99
+  kld_weight: 0.00025
+  manual_seed: 1265
+
+trainer_params:
+  gpus: []
+  max_epochs: 50
+
+logging_params:
+  save_dir: "logs/"
+  manual_seed: 1265
+  name: 'BetaVAE'
