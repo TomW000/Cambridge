@@ -1,8 +1,0 @@
-torch
-torchvision
-scikit-learn
-umap-learn
-h5py
-numpy
-tqdm
-plotly
