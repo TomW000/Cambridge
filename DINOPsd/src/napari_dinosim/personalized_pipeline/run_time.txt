@@ -1,0 +1,5 @@
+ref_NoAug_giant-518: 11min   clear just when going from 140 to 518
+ref aug giant 0 crop: 30
+
+check if latents normalized
+am i picking the right vectors?
